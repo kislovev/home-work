@@ -1,25 +1,89 @@
-<html>
+<!DOCTYPE HTML>
+<html lang='ru'>
 <head>
+<meta charset='utf-8'>
 <title>Таблицы. Домашняя работа</title>
+
 <style>
 
+table { 
+ width: 300px;
+ height: 200px; 
+ border-collapse: collapse;
+ 
+ text-align: right;
+ color: #fff;
+ font-size: 1.5em;
 
+}
+
+h1,
+td {
+ /*
+ border-top: solid #080 2px;
+ border-right: solid #080 2px;
+ border-bottom: solid #080 2px;
+ border-left: solid #080 2px;
+ */
+ 
+ border: solid #080 2px;
+ 
+ /* padding: ; */
+ vertical-align: bottom;
+}
+
+#td1 {
+	background: #fc9;
+}
+
+td {
+	border: solid #080 2px;
+	color: #f00;
+}
+
+p {
+ border: inherit;
+ color: #00f;
+}
 
 </style>
+
 </head>
 
 <body>
+
+<table>
+   
+    <tr>  
+     <td rowspan='2' id='td1'>1
+     <td style="background: #888;">2
+     <td style="background: #00f;">3   
+    </tr>
+
+<tr>
+  <td colspan='2' style="background: #0f0;">
+	 Text
+	 <p>44444</p>
+  </td>
+</tr>
+	
+</table>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
 <!-- 
 Нарисуйте таблицу согласно эскизу.
 Размеры таблицы: ширина 300px, высота 200px.
 Используя CSS измените фон каждой ячейки. 
 Что можно сделать с помощью атрибута bgcolor? Считается ли атрибут bgcolor у тега <td> в версии языка html4.01 устаревшим и почему? (w3.org/TR/html401) 
 -->
-
-
-
-
-
-
-</body>
-</html>
