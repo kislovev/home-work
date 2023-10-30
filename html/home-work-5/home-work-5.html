@@ -1,16 +1,80 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <title>Формы</title>
 <style>
 
+
+
 /* 	внутренние отступы в ячейках составляют 8px;
 	ширина элемента textarea составляет 97%;
 	запретить пользователю изменять размеры текстовой области (элемент textarea) */
 
+table { 
+ border-collapse: collapse;
+}
 
-	
+caption {font-size: 24px; padding: 8px;}
+
+/*
+tr, td {
+ border: 2px; 
+ padding: 8px;
+}
+*/
+
+textarea {
+  width: 97%;
+  height: 60px;
+  resize: none;
+} 
+
+th,
+td {
+ border: solid #080 2px;
+}
+
+input,
+select,
+fieldset {
+	margin: 8px;
+}
+
+input{
+ padding: 8px;
+ border: 1px solid #000;
+ cursor: pointer;
+ color: #000;
+}
+
+#btn {
+ background: linear-gradient(white, rgb(224, 222, 222));
+ /* float: right; */
+}
+
+.my-table {
+	border: 5px solid red;
+	display: table;
+	border-collapse: collapse;
+}
+
+.my-table > div {
+	border: 5px solid green;
+	display: table-cell;
+	padding: 4px;
+}
+
+#russian-flag {
+ width: 300px;
+ height: 200px;
+ /* border: 2px solid red; */
+ margin-bottom: 30px;
+ 
+ background-image: linear-gradient(to bottom, white 33%, blue 33% 66%, red 66%);
+
+}
+
 </style>
 </head>
 
@@ -22,10 +86,65 @@
 
 <caption>Закажите сайт</caption>
 
+<tr>
+	<td>ваше имя 
+	<td><input type='text' name='user_name'>
+</tr>
 
+<tr>
+	<td>ваш email 
+	<td><input type='text' name='user_email'>
+</tr>
 
+<tr>
+	<td>Кол-во страниц
+	<td><select name = 'pages'>
+	<option value='5'>&lt5</option>
+	<option value='5'>5-10</option>
+	<option value='5'>&gt10</option></select>
+</tr>
 
+<tr>
+	<td colspan = '2'>
+	<fieldset><!--Версия HTML-->
+		<legend>Версия языка HTML</legend>
+			<label>
+				<input checked type='radio' name='language5'> HTML5
+			</label>
+			<label>
+				<input type='radio' name='language4'> HTML4.01
+			</label>
+			<label>
+				<input type='radio' name='language1'> XHTML1.1
+			</label>
+	</fieldset>
+</tr>
 
+<tr>
+	<td colspan = '2'>
+	<fieldset><!--Версия сайта-->
+		<legend>Дополнительные параметры</legend>
+		<label>
+			<input checked type='checkbox' name='site'> Слайдшоу
+		</label>
+		<label>
+			<input checked type='checkbox' name='site'> Мобильная версия
+		</label>
+		<label>
+			<input type='checkbox' name='site'> Версия для печати
+		</label>
+	</fieldset>
+</tr>
+
+<tr>
+	<td colspan = '2'>Комментарии<!-- текстовая область -->
+<textarea comment></textarea>
+</tr>
+
+<tr>
+	<td colspan='2' style='text-align: right;'>
+		<input class='knopk' id='btn' disabled type='submit' value='Сделать заказ'>
+</tr>
 
 </table>
 
