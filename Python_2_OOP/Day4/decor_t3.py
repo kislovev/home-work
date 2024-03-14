@@ -10,32 +10,25 @@ chr(165) -> '¥'
 Добавить возможность указать значок валюты для декоратора, по которому мы получаем значение.
 """
 
-rates = {
-    '$': 90,
-    '€': 98
-}
+RATES = {
+    "$": 90,
+    "€": 98
+         }
 
 
-def exchange(func: str):
-    def wrapper(*args, **kwargs):
-        change = {
-            chr(36): 90,
-            chr(8364): 100,
-            chr(8381): 1,
-            chr(165): 0.61
-        }
-        result = func(*args, **kwargs)
-        currency = float(result[:-1]) / change.get(func)
-        return f'{currency}{func}'
-    return wrapper
+def exchange(arg):
+    def real_func(func):
+        def wrapper(*args, **kwargs):
+            rub = float(func(*args, ** kwargs)[:-1])
+            currency = RATES.get(arg)
+            return f'{round(rub/currency, 2)}{arg}'
+        return wrapper
+    return real_func
 
 
-@exchange(func= '€')
+@exchange("€")
 def summa(count: float, price: float) -> str:
-    """ Out: <float><CHAR>"""
-    return f'{round(count * price, 2)}₽'
+    return f'{round(count * price, 2)} р'
 
 
-print(summa(305.5, 2.4))
-print(summa(1000, price=10))
-
+print(summa(100, 10))

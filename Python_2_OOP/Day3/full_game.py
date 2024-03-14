@@ -1,23 +1,8 @@
-from deck_total import Card, Deck
-
-"""
-Cоздадим имитацию ходов в “Дурака без козырей”:
-
-1. Создайте колоду из 52 карт. Перемешайте ее.
-2. Первый игрок берет сверху 10 карт
-3. Второй игрок берет сверху 10 карт.
-4. Игрок-1 ходит:
-    4.1. игрок-1 выкладывает самую маленькую карту по "старшенству"
-    4.2. игрок-2 пытается бить карту, если у него есть такая же масть, но значением больше.
-    4.3. Если игрок-2 не может побить карту, то он проигрывает/забирает себе(см. пункт 7)
-    4.4. Если игрок-2 бьет карту, то игрок-1 может подкинуть карту любого значения, которое есть на столе.
-5. Если Игрок-2 отбился, то Игрок-1 и Игрок-2 меняются местами. Игрок-2 ходит, Игрок-1 отбивается.
-6. Выведите в консоль максимально наглядную визуализацию данных ходов (библиотека rich)
-7* Реализовать возможность добрать карты из колоды после того, как один из игроков отбился/взял в руку
-"""
+from __future__ import annotations
 import random
 
-
+# Начнем с создания карты
+# ♥ ♦ ♣ ♠
 VALUES = ('2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A')
 SUITS = ('Spades', 'Clubs', 'Diamonds', 'Hearts')
 SUITS_UNI = {
@@ -30,197 +15,172 @@ SUITS_UNI = {
 
 class Card:
     def __init__(self, value, suit):
-        self.value = value
-        self.suit = suit
+        self.value = value  # Значение карты(2, 3... 10, J, Q, K, A)
+        self.suit = suit  # Масть карты
 
-    def __str__(self):
+    def to_str(self):
         return f'{self.value}{SUITS_UNI[self.suit]}'
 
-    def __repr__(self) -> str:
-        return f'{self.value}{SUITS_UNI[self.suit]}'
+    # def equal_suit(self, other_card):
+    #     return self.suit == other_card.suit
 
-    def equal_suit(self, other_card):
-        return self.suit == other_card.suit
-
-    def equal_value(self, other_card):
+    def __eq__(self, other_card: Card) -> bool:
         return self.value == other_card.value
 
-    def __gr__(self, other_card):
-        if self.value == other_card.value:
-            return SUITS.index(self.suit) > SUITS.index(other_card.suit)
-        return VALUES.index(self.value) > VALUES.index(other_card.value)
+    def __gt__(self, other_card: Card) -> bool:
+        if self.suit == other_card.suit:
+            return VALUES.index(self.value) > VALUES.index(other_card.value)
 
     def __lt__(self, other_card):
-        if self.value == other_card.value:
-            return SUITS.index(self.suit) < SUITS.index(other_card.suit)
-        return VALUES.index(self.value) < VALUES.index(other_card.value)
+        if self.suit == other_card.suit:
+            return VALUES.index(self.value) < VALUES.index(other_card.value)
+
+    def __repr__(self):
+        return f'{self.value}{SUITS_UNI.get(self.suit)}'
 
 
-# Задание: Теперь создадим колоду из 52-ух карт и реализуем все методы
 class Deck:
     def __init__(self):
-        # Список карт в колоде. Каждым элементом списка будет объект класса Card
-        self.cards = [Card(value, suit) for suit in SUITS for value in VALUES]
+        self.cards = []
 
-    def __str__(self) -> str:
-        return (f'deck:{len(self.cards)}, Карты: {", ".join([str(i) for i in self.cards])}')
+        for suit in SUITS:
+            for value in VALUES:
+                self.cards.append(Card(value, suit))
 
-    def __repr__(self) -> str:
-        return f'Deck {self}'
+    def show(self) -> str:
+        return f"Deck[{len(self.cards)}]: {', '.join([str(card) for card in self.cards])}"
 
-    def show(self):
-        # Принцип работы данного метода прописан в 00_task_deck.md
-        print(self)
-        # print(f'deck:[{len(self.cards)}]: {
-        #    ", ".join([str(i) for i in self.cards])}')
-
-    def draw(self, x) -> list[Card]:
-        # Принцип работы данного метода прописан в 00_task_deck.md
-        cars_in_hand = self.cards[:x]
-        self.cards = self.cards[x:]
-        return cars_in_hand
-
-    # получение значения по индексу
-    def __getitem__(self, item):
-        return self.cards.__getitem__(item)
-
-    def shuffle(self):
+    def shuffle(self) -> None:
         random.shuffle(self.cards)
+
+    def draw(self, num_cards: int) -> list[Card]:
+        out_cards = []
+        out_cards += self.cards[:num_cards]
+        del self.cards[:num_cards]
+        return out_cards
+
+    def __str__(self):
+        return f"Deck[{len(self.cards)}]: {', '.join([str(card) for card in self.cards])}"
+
+    def __repr__(self):
+        return str(self)
 
 
 class Player:
-    def __init__(self, cards, card_player=None) -> list[Card]:
-        # Список карт в руке
-        self.cards = cards
-        self.card_player = card_player
+    def __init__(self, name):
+        self.name = name
+        self.hand = []
 
-    def __str__(self) -> str:
-        return f'В руке карт осталось: {len(self.cards)}, карты: {self.cards}'
-
-    def __repr__(self) -> str:
-        return self.cards
-
-    # получение значения по индексу
-    def __getitem__(self, item):
-        return self.cards.__getitem__(item)
-
-    def get_unbreakable_card(self, card):
-        self.cards.append(card)
-
-    def rem_unbreakable_card(self, card):
-        self.cards.remove(card)
-
-    def move2(self, player, card):
-        table = []
-        bito = []
-        print(f'Игрок 1 пошел_ картой {card[0]}')
-        table.append(card[0])
-        cards_same_suit = sorted([
-            i for i in player if i.equal_suit(card[0])])
-        if cards_same_suit != []:
-            self.rem_unbreakable_card(card[0])
-            max_card = None
-            for i in cards_same_suit:
-                if i > card[0]:
-                    max_card = i
-                    table.append(max_card)
-                    player.rem_unbreakable_card(max_card)
-                    bito.append(max_card)
-                    print(f'Игрок 2 отбил картой {max_card}')
-                    break
-            if bito != []:
-                print(f'карты на столе2 {table}')
-                cart_in_pl1_val = [
-                    i.value for i in table for j in self.cards if i.equal_value(j)]
-                cart_in_pl1 = [
-                    i for i in self.cards for j in set(cart_in_pl1_val) if i.value in j]
-                if cart_in_pl1 != []:
-                    print(f'карта(ы) у первого игрока, которыми можно еще раз ходить {
-                        cart_in_pl1}')
-                    self.move2(player, cart_in_pl1)
-                else:
-                    print('Игрок 2 отбился')
-            else:
-                print(f'Игрок 2 не смог отбиться')
-                player.get_unbreakable_card(self.cards[0])
-                self.rem_unbreakable_card(self.cards[0])
-        else:
-            print(f'Игрок 2 не смог отбиться')
-            player.get_unbreakable_card(card[0])
-            self.rem_unbreakable_card(card[0])
-
-    def move(self, player):
-        table = []
-        bito = []
-        print(f'Игрок 1 пошел картой {self.cards[0]}')
-        table.append(self.cards[0])
-        cards_same_suit = sorted([
-            i for i in player if i.equal_suit(self.cards[0])])
-        # если карты такой масти у игрока2 нет
-        if cards_same_suit != []:
-            self.rem_unbreakable_card(self.cards[0])
-            max_card = None
-            for i in cards_same_suit:
-                if i > self.cards[0]:
-                    max_card = i
-                    table.append(max_card)
-                    player.rem_unbreakable_card(max_card)
-                    print(f'Игрок 2 отбил картой {max_card}')
-                    bito.append(max_card)
-                    break
-            if max_card != []:
-                print(f'карты на столе {table}')
-                cart_in_pl1_val = [
-                    i.value for i in table for j in self.cards if i.equal_value(j)]
-                cart_in_pl1 = [
-                    i for i in self.cards for j in set(cart_in_pl1_val) if i.value in j]
-
-                if cart_in_pl1 != []:
-                    print(f'карта(ы) у первого игрока, которыми можно еще раз ходить {
-                        cart_in_pl1}')
-                    self.move2(player, cart_in_pl1)
-                else:
-                    print('Игрок 2 отбился')
-            else:
-                print(f'Игрок 2 не смог отбиться')
-                player.get_unbreakable_card(self.cards[0])
-                self.rem_unbreakable_card(self.cards[0])
-        else:
-            print(f'Игрок 2 не смог отбиться')
-            player.get_unbreakable_card(self.cards[0])
-            self.rem_unbreakable_card(self.cards[0])
+    def attack(self):
+        card_for_attack = min(vars(self).get('hand'))
+        self.hand.remove(card_for_attack)
+        return card_for_attack
 
 
 class Game:
-    def __init__(self, player1, player2, table=[]):
-        self.player1 = player1
-        self.player2 = player2
-        self.table = table
+    def __init__(self, max_cards_on_hand=10):
+        self.table = []
+        self.player1 = Player("Вадим Викторович")
+        self.player2 = Player("Стас")
+        self.deck = Deck()
+        self.deck.shuffle()
+        self.max_cards_on_hand = max_cards_on_hand
+        self.player1.hand = self.deck.draw(max_cards_on_hand)
+        self.player2.hand = self.deck.draw(max_cards_on_hand)
+        self.first_move = 1
+        self.num_of_match = 1
+        self.round()
 
-    def move(self):
-        pass
+    def round(self):
+        while len(self.player1.hand) > 0 and len(self.player2.hand) > 0:
+            print(f'Партия № {self.num_of_match}\n-----------')
+            self.num_of_match += 1
+
+            print(f'{self.player1.name} держит в руке: {self.player1.hand} - {[len(self.player1.hand)]} шт.\n'
+                  f'{self.player2.name} держит в руке: {self.player2.hand} - {[len(self.player2.hand)]} шт.\n\n')
+
+            self.fight()
+
+            if len(self.player1.hand) == 0:
+                print(f"Конец Игры !\n{len(self.player1.hand)} : {len(self.player2.hand)}")
+                print(f'{self.player1.name} победил !!!')
+            elif len(self.player2.hand) == 0:
+                print(f"Конец Игры !\n{len(self.player1.hand)} : {len(self.player2.hand)}")
+                print(f'{self.player2.name} победил !!!')
+
+    def fight(self):
+        if self.first_move == 1:
+            start_player = self.player1
+            defender = self.player2
+        elif self.first_move == 2:
+            start_player = self.player2
+            defender = self.player1
+
+        # Первый игрок атакует:
+        move1 = start_player.attack()
+        print(f'Ходит {start_player.name}: {move1}')
+        self.table.append(move1)
+        out_str = f'На столе лежат: {self.table}'
+        print(f'{out_str: >40}')
+
+        go = 6  # Максимальное кол-во карт для подкидывания
+        while go > 0:
+            # Второй игрок отбивается
+            suitable = []
+            for card in defender.hand:
+                if card > self.table[-1]:
+                    suitable.append(card)
+
+            if len(suitable) == 0:
+                print(f'{defender.name} забирает карты со стола')
+                defender.hand += self.table
+                self.table.clear()
+                print(f'                    На столе лежат карты: {self.table}')
+                break
+
+            print(f'                    Подходящие карты для защиты: {suitable}')
+            defend_card = min(suitable)
+            print(f'{defender.name} защищается: {defend_card}')
+            self.table.append(defend_card)
+            print(f'                    На столе лежат карты: {self.table}')
+            defender.hand.remove(defend_card)
+            suitable.clear()
+
+            # Первый игрок атакует снова:
+            suitable = []
+            for card in self.table:
+                for card_2 in start_player.hand:
+                    if card == card_2:
+                        suitable.append(card_2)
+
+            if len(suitable) == 0:
+                print(f'{start_player.name} не может больше атаковать')
+                print(f'Бито: {self.table}\n')
+                self.table.clear()
+                self.first_move = 2
+                break
+
+            print(f'                    Какие карты можно подкинуть: {suitable}')
+            defend_card = min(suitable)
+            print(f'{start_player.name} подбрасывает: {defend_card}')
+            self.table.append(defend_card)
+            print(f'                    На столе лежат карты: {self.table}')
+            start_player.hand.remove(defend_card)
+            suitable.clear()
+            go -= 1
+
+        # Добираем недостающие карты из колоды
+        if len(start_player.hand) < self.max_cards_on_hand and len(self.deck.cards):
+            need_num = self.max_cards_on_hand - len(start_player.hand)
+            print(f'{start_player.name} забирает из колоды карт: {need_num} шт.')
+            start_player.hand += self.deck.draw(need_num)
+
+        if len(defender.hand) < self.max_cards_on_hand and len(self.deck.cards):
+            need = self.max_cards_on_hand - len(defender.hand)
+            print(f'{defender.name} забирает из колоды карт {need} шт.')
+            defender.hand += self.deck.draw(need)
+
+        print(f'\nОставшиеся карты в колоде: {self.deck}\n\n\n\n')
 
 
-# Создаем колоду
-deck = Deck()
-# Выводим колоду в формате указанном в основном задании
-
-# Тусуем колоду
-deck.shuffle()
-deck.show()
-print("="*30)
-
-# Возьмем 5 карт "в руку"
-pl1 = Player(sorted(deck.draw(10)))
-print(pl1)
-pl2 = Player(sorted(deck.draw(10)))
-print(pl2)
-
-pl1.move(pl2)
-
-print(pl1)
-print(pl2)
-print('='*30)
-pl2.move(pl1)
-print(pl1)
-print(pl2)
+game1 = Game()

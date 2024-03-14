@@ -10,17 +10,11 @@ class Point:
     def distance(self, other_point) -> float:
         return math.sqrt((other_point.x - self.x) ** 2 + (other_point.y - self.y) ** 2)
 
+    def triangle_perimeter(self, p1, p2)  -> float:
+        return self.distance(p1)+self.distance(p2)+p1.distance(p2)
 
-def triangle_square(p1: Point, p2: Point, p3: Point) -> float:
-    # Посчитали стороны
-    a = p1.distance(p2)
-    b = p2.distance(p3)
-    c = p3.distance(p1)
 
-    # Полупериметр и площадь
-    sp = (a + b + c) / 2
-    square = math.sqrt(sp * (sp - a) * (sp - b) * (sp - c))
-    return square
+
 
 
 # пример работы метода
@@ -50,14 +44,22 @@ points = [
 # для вычисления площади можно использовать формулу Герона:
 # math.sqrt(p * (p-a) * (p-b) * (p-c)), где p - это полупериметр
 
-reds = []
-greens = []
-for point in points:
-    if point.color == "red":
-        reds.append(point)
-    elif point.color == "green":
-        greens.append(point)
+# TODO: your code here...
 
 
-print("Площадь красного треугольника = ", triangle_square(*reds))
-print("Площадь зеленого треугольника = ", triangle_square(*greens))
+def triangle_square(color):
+    three_points = []
+    for point in points:
+        if point.color == color:
+            three_points.append(point)
+        if len(three_points) == 3:
+            semi_perimeter = (three_points[0].triangle_perimeter(three_points[1], three_points[2])) / 2
+            triangle_square = math.sqrt(semi_perimeter * (semi_perimeter - three_points[0].distance(three_points[1]))
+                                * (semi_perimeter - three_points[1].distance(three_points[2]))
+                                * (semi_perimeter - three_points[2].distance(three_points[0])))
+            return triangle_square
+
+
+print("Площадь красного треугольника = ", triangle_square("red"))
+print("Площадь зеленого треугольника = ", triangle_square("green"))
+
